@@ -2,7 +2,7 @@
 Feature: Get Call Users API
 
   Background:
-    * url 'https://jsonplaceholder.typicode.com'
+    * url jsonPlaceholderUrl
 
   Scenario: Get user by id
     Given path 'users', 1
