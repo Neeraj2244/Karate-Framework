@@ -1,4 +1,4 @@
-@SmokeTest @RegressionTest
+@IntentionalFailure 
 Feature: POST Method For Post Creation API With Incorrect Data
 
   @TestCase2
@@ -22,7 +22,7 @@ Feature: POST Method For Post Creation API With Incorrect Data
     And match response.data.createdBy == 'Karate DSL Author'
 
 
-   @TestCase3 @SanityTest
+   @TestCase3 @SanityTest @RegressionTest
   Scenario: Create post with correct data
     Given url 'https://api.restful-api.dev/objects'
     And request
