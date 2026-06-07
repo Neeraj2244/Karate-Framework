@@ -1,0 +1,42 @@
+# =============================================================================
+#  REGRESSION TESTS — Runs automatically on every push to main
+#  Runs all scenarios tagged @RegressionTest
+#  Trigger: Automatic — fires whenever code is pushed to the main branch
+# =============================================================================
+
+name: Regression Tests
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  regression:
+    name: Run @RegressionTest scenarios
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Run Regression Tests
+        shell: pwsh
+        run: |
+          ./karate.ps1 tags "@RegressionTest" `
+            -KarateEnv "dev" `
+            -Output "target/karate-reports"
+
+      - name: Upload Regression Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-report-${{ github.run_number }}
+          path: target/karate-reports/
+          retention-days: 14

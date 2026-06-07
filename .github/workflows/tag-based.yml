@@ -1,0 +1,73 @@
+# =============================================================================
+#  TAG-BASED TESTS — Manual trigger only
+#  Select a tag from the dropdown — only matching scenarios will run.
+#  Trigger: GitHub UI → Actions → Tag-Based Tests → Run workflow → pick tag
+#
+#  Tags available (sourced from project feature files):
+#    @SanityTest      → users/GetCall.feature, posts/PostCall.feature
+#    @SmokeTest       → posts/PostCall.feature, posts/create_post_correct.feature
+#    @RegressionTest  → posts/PostCall.feature
+#    @TestCase1       → users/GetCall.feature (scenario level)
+#    @TestCase2       → posts/PostCall.feature (scenario level)
+#    @TestCase3       → posts/PostCall.feature, posts/create_post_correct.feature
+# =============================================================================
+
+name: Tag-Based Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Select tag — only scenarios with this tag will run"
+        required: true
+        type: choice
+        options:
+          - "@SanityTest"
+          - "@SmokeTest"
+          - "@RegressionTest"
+          - "@TestCase1"
+          - "@TestCase2"
+          - "@TestCase3"
+
+      environment:
+        description: "Target environment to test against"
+        required: false
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+jobs:
+  tag-run:
+    name: "Run ${{ inputs.tag }} scenarios"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Run Tests for selected tag
+        shell: pwsh
+        env:
+          SELECTED_TAG: ${{ inputs.tag }}
+          KARATE_ENV:   ${{ inputs.environment }}
+        run: |
+          ./karate.ps1 tags $env:SELECTED_TAG `
+            -KarateEnv $env:KARATE_ENV `
+            -Output "target/karate-reports"
+
+      - name: Upload Tag-Run Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: "tag-run-${{ inputs.tag }}-${{ github.run_number }}"
+          path: target/karate-reports/
+          retention-days: 7

@@ -1,0 +1,50 @@
+# =============================================================================
+#  SANITY TESTS — Manual trigger only
+#  Runs all scenarios tagged @SanityTest
+#  Trigger: GitHub UI → Actions → Sanity Tests → Run workflow
+# =============================================================================
+
+name: Sanity Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment to test against"
+        required: false
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+jobs:
+  sanity:
+    name: Run @SanityTest scenarios
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Run Sanity Tests
+        shell: pwsh
+        run: |
+          ./karate.ps1 tags "@SanityTest" `
+            -KarateEnv "${{ inputs.environment }}" `
+            -Output "target/karate-reports"
+
+      - name: Upload Sanity Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sanity-report-${{ github.run_number }}
+          path: target/karate-reports/
+          retention-days: 7
