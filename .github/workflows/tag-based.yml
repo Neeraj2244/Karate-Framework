@@ -4,12 +4,22 @@
 #  Trigger: GitHub UI → Actions → Tag-Based Tests → Run workflow → pick tag
 #
 #  Tags available (sourced from project feature files):
-#    @SanityTest      → users/GetCall.feature, posts/PostCall.feature
-#    @SmokeTest       → posts/PostCall.feature, posts/create_post_correct.feature
-#    @RegressionTest  → posts/PostCall.feature
-#    @TestCase1       → users/GetCall.feature (scenario level)
-#    @TestCase2       → posts/PostCall.feature (scenario level)
-#    @TestCase3       → posts/PostCall.feature, posts/create_post_correct.feature
+#    @SanityTest        → users/GetCall.feature, posts/PostCall.feature,
+#                         headers/HeadersTest.feature, datadriven/DataDrivenTest.feature,
+#                         validation/ResponseValidation.feature
+#    @RegressionTest    → posts/PostCall.feature, headers/HeadersTest.feature,
+#                         datadriven/DataDrivenTest.feature, validation/ResponseValidation.feature,
+#                         retry/RetryUntil.feature, reusable/ReusableFeature.feature
+#    @TestCase1         → users/GetCall.feature (feature level)
+#    @TestCase2         → posts/PostCall.feature (scenario level)
+#    @TestCase3         → posts/PostCall.feature (scenario level)
+#    @Headers           → headers/HeadersTest.feature
+#    @DataDriven        → datadriven/DataDrivenTest.feature
+#    @Validation        → validation/ResponseValidation.feature
+#    @Retry             → retry/RetryUntil.feature
+#    @Reusable          → reusable/ReusableFeature.feature, reusable/PostRequest.feature
+#    @FileUpload        → fileupload/FileUpload.feature
+#    @IntentionalFailure → posts/PostCall.feature (marks intentionally failing scenarios)
 # =============================================================================
 
 name: Tag-Based Tests
@@ -23,11 +33,17 @@ on:
         type: choice
         options:
           - "@SanityTest"
-          - "@SmokeTest"
           - "@RegressionTest"
           - "@TestCase1"
           - "@TestCase2"
           - "@TestCase3"
+          - "@Headers"
+          - "@DataDriven"
+          - "@Validation"
+          - "@Retry"
+          - "@Reusable"
+          - "@FileUpload"
+          - "@IntentionalFailure"
 
       environment:
         description: "Target environment to test against"

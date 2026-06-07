@@ -198,6 +198,11 @@ switch ($Command.ToLower()) {
             Write-Host "  Usage: .\karate.ps1 run users/GetCall.feature"
             exit 1
         }
+        # "run all" / "run a" → treat as the 'all' command
+        if ($Arg1 -in "all","a") {
+            Write-Host "  Running all features in: $BASE" -ForegroundColor White
+            Invoke-Karate -FeaturePath $BASE -UseThreads $Threads
+        }
         $featurePath = Join-Path $BASE $Arg1
         Write-Host "  Running feature: $featurePath" -ForegroundColor White
         Invoke-Karate -FeaturePath $featurePath -UseThreads $Threads

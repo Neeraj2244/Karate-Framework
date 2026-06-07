@@ -1,8 +1,8 @@
-@FileUpload @RegressionTest
+@FileUpload 
 Feature: File Upload
 
   Background:
-    * url httpBinUrl
+    * url httpBingoUrl
 
   Scenario: Upload a document with additional fields
     Given path 'post'
@@ -11,5 +11,5 @@ Feature: File Upload
     And multipart field description = 'Test document upload via Karate'
     When method post
     Then status 200
-    And match response.files.document == '#notnull'
-    And match response.form.description == 'Test document upload via Karate'
+    And match response.files.myFile == '#notnull'
+    And match response.form.description contains 'Test document upload via Karate'

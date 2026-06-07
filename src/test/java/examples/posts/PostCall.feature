@@ -4,7 +4,7 @@ Feature: POST Method For Post Creation API With Incorrect Data
   Background:
     * url restfulApiUrl
 
-  @TestCase2
+  @TestCase2 @SanityTest
   Scenario: Create post with incorrect data
     Given path 'objects'
     And request
