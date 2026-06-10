@@ -1,14 +1,25 @@
 # =============================================================================
-#  SANITY TESTS — Manual trigger only
-#  Runs all scenarios tagged @SanityTest
-#  Trigger: GitHub UI → Actions → Sanity Tests → Run workflow
+#  PARALLEL ALL TESTS — Manual trigger
+#  Runs every feature file under src/test/java/examples/ in parallel.
+#  Trigger: GitHub UI → Actions → Parallel All Tests → Run workflow
 # =============================================================================
 
-name: Sanity Tests
+name: Parallel All Tests
 
 on:
   workflow_dispatch:
     inputs:
+      threads:
+        description: "Number of parallel threads"
+        required: false
+        default: "4"
+        type: choice
+        options:
+          - "2"
+          - "4"
+          - "6"
+          - "8"
+
       environment:
         description: "Target environment to test against"
         required: false
@@ -20,8 +31,8 @@ on:
           - prod
 
 jobs:
-  sanity:
-    name: Run @SanityTest scenarios
+  parallel-all:
+    name: "Run all features (${{ inputs.threads }} threads)"
     runs-on: ubuntu-latest
 
     steps:
@@ -34,7 +45,7 @@ jobs:
           java-version: "21"
           distribution: "temurin"
 
-      - name: Run Sanity Tests
+      - name: Run All Tests in Parallel
         shell: pwsh
         env:
           KARATE_LOGBACK : logback-ci.xml
@@ -45,14 +56,15 @@ jobs:
           DUMMY_JSON_USERNAME  : ${{ secrets.DUMMY_JSON_USERNAME }}
           DUMMY_JSON_PASSWORD  : ${{ secrets.DUMMY_JSON_PASSWORD }}
         run: |
-          ./karate.ps1 tags "@SanityTest" `
+          ./karate.ps1 parallel `
+            -Threads ${{ inputs.threads }} `
             -KarateEnv "${{ inputs.environment }}" `
             -Output "target/karate-reports"
 
-      - name: Upload Sanity Report
+      - name: Upload Parallel Report
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: sanity-report-${{ github.run_number }}
+          name: parallel-all-report-${{ github.run_number }}
           path: target/karate-reports/
           retention-days: 7

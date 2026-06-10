@@ -1,3 +1,6 @@
 desktop.ini
 target/
 
+# Local credentials — never commit real values
+.env
+

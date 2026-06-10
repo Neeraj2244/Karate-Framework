@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- CI: WARN level only + sensitive header values masked in output -->
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!--
+                %replace(msg){regex}{replacement}
+                Applied BEFORE the message is written — replaces header values in-place.
+                Covers: Authorization, X-API-Key, X-Api-Key header lines.
+            -->
+            <pattern>%d{HH:mm:ss.SSS} [%-5level] %logger{36} - %replace(%msg){'(Authorization|X-API-Key|X-Api-Key): [^\r\n]+','$1: ***MASKED***'}%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- HTTP bodies suppressed — prevents token/PII leakage in CI logs -->
+    <logger name="karate.http"    level="WARN"/>
+
+    <!-- Runtime at INFO — shows scenario names, step execution, and failure details -->
+    <logger name="karate.runtime" level="INFO"/>
+    <logger name="io.karatelabs"  level="INFO"/>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+</configuration>

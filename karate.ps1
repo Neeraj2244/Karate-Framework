@@ -93,6 +93,17 @@ $JAR  = Join-Path $PSScriptRoot "karate-2.0.10.jar"
 $BASE = Join-Path $PSScriptRoot "src" | Join-Path -ChildPath "test" |
         Join-Path -ChildPath "java" | Join-Path -ChildPath "examples"
 
+# ── Load .env for local development (never present in CI) ─────────────────────
+$envFile = Join-Path $PSScriptRoot ".env"
+if (Test-Path $envFile) {
+    Get-Content $envFile | ForEach-Object {
+        if ($_ -match '^\s*([^#][^=]+)=(.*)$') {
+            [System.Environment]::SetEnvironmentVariable($Matches[1].Trim(), $Matches[2].Trim())
+        }
+    }
+    Write-Host "  Loaded credentials from .env" -ForegroundColor DarkGray
+}
+
 # ── Validate JAR exists ───────────────────────────────────────────────────────
 if (-not (Test-Path $JAR)) {
     Write-Host "ERROR: JAR not found at $JAR" -ForegroundColor Red
@@ -111,10 +122,20 @@ function Invoke-Karate {
     $allArgs = [System.Collections.Generic.List[string]]::new()
 
     # JVM flags BEFORE -jar
+    # CI sets KARATE_LOGBACK=logback-ci.xml; locally the JAR built-in DEBUG config is used
+    if ($env:KARATE_LOGBACK) {
+        $logbackConfig = Join-Path $PSScriptRoot $env:KARATE_LOGBACK
+        if (Test-Path $logbackConfig) { $allArgs.Add("-Dlogback.configurationFile=$logbackConfig") }
+    }
     if ($KarateEnv) { $allArgs.Add("-Dkarate.env=$KarateEnv") }
 
-    $allArgs.Add("-jar")
-    $allArgs.Add($JAR)
+    # Use -cp instead of -jar so src/test/java is on the classpath.
+    # This makes classpath:examples/... resolve correctly for karate.callSingle() in karate-config.js.
+    $src = Join-Path $PSScriptRoot "src" | Join-Path -ChildPath "test" | Join-Path -ChildPath "java"
+    $sep = [System.IO.Path]::PathSeparator   # ; on Windows, : on Linux/Mac
+    $allArgs.Add("-cp")
+    $allArgs.Add("${JAR}${sep}${src}")
+    $allArgs.Add("io.karatelabs.Main")
 
     # Karate flags AFTER -jar
     if ($UseThreads -gt 0) {
@@ -239,13 +260,9 @@ switch ($Command.ToLower()) {
 
     # ── parallel / p ─────────────────────────────────────────────────────────
     { $_ -in "parallel","p" } {
-        if (-not $Arg1) {
-            Write-Host "  ERROR: Provide a feature path or folder." -ForegroundColor Red
-            Write-Host "  Usage: .\karate.ps1 parallel users -Threads 4"
-            exit 1
-        }
         $effectiveThreads = if ($Threads -gt 0) { $Threads } else { 4 }
-        $featurePath = Join-Path $BASE $Arg1
+        # No folder given → run all features under examples/
+        $featurePath = if ($Arg1) { Join-Path $BASE $Arg1 } else { $BASE }
         Write-Host "  Running in parallel ($effectiveThreads threads): $featurePath" -ForegroundColor White
         Invoke-Karate -FeaturePath $featurePath -UseThreads $effectiveThreads
     }
