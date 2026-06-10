@@ -18,11 +18,12 @@ Feature: DummyJSON — Authenticated API Requests
     And match response.firstName  == '#string'
     And match response.lastName   == '#string'
 
-  Scenario: GET /auth/me — token is not expired
+  Scenario: GET /auth/me — validate full profile shape including nested objects
     Given path 'auth', 'me'
     When method GET
     Then status 200
-    And match response ==
+    # match contains — partial match at top level, ignores extra fields
+    And match response contains
       """
       {
         id:        '#number',
@@ -31,6 +32,11 @@ Feature: DummyJSON — Authenticated API Requests
         firstName: '#string',
         lastName:  '#string',
         gender:    '#string',
-        image:     '#string'
+        image:     '#string',
+        age:       '#number',
+        phone:     '#string'
       }
       """
+    # nested objects need their own contains assertion — top-level contains does not recurse
+    And match response.hair    contains { color: '#string', type: '#string' }
+    And match response.address contains { city: '#string', country: '#string' }
