@@ -1,4 +1,4 @@
-@Auth
+
 Feature: DummyJSON Login — token generation helper
 
   # Called exclusively via karate.callSingle() in karate-config.js.
