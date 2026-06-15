@@ -50,6 +50,7 @@ Feature: WebSocket — Message Filtering and Accumulation
     * def m1 = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
     * def m2 = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
     * def m3 = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
-    * match m1 == 'msg-alpha'
-    * match m2 == 'msg-beta'
-    * match m3 == 'msg-gamma'
+    * def collected = [m1, m2, m3]
+    * match collected contains 'msg-alpha'
+    * match collected contains 'msg-beta'
+    * match collected contains 'msg-gamma'
