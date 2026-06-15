@@ -51,14 +51,5 @@ function fn() {
     });
   }
 
-  // ── Suite-level teardown — runs ONCE after all scenarios complete ─────────────
-  karate.configure('afterAll', function() {
-    karate.log('[TEARDOWN] Suite finished. Performing suite-level cleanup.');
-    if (config.dummyJsonToken) {
-      karate.log('[TEARDOWN] DummyJSON token was used this run. Expires in 30 minutes automatically (no logout endpoint).');
-    }
-    karate.log('[TEARDOWN] Suite-level cleanup complete.');
-  });
-
   return config;
 }
