@@ -8,7 +8,7 @@ Feature: WebSocket — Message Filtering and Accumulation
   #   - Accumulate by polling N times for N expected messages
   # Karate 2.x inline array gotcha:
   #   - `def collected = [m1, m2, m3]` creates STRING LITERALS "m1","m2","m3" — NOT variable refs
-  #   - Match each polled value individually: `match m1 == 'a'` etc.
+  #   - Use karate.append(m1, m2, m3) to build an array of actual variable values
 
   Background:
     * def WsClient  = Java.type('io.karatelabs.http.WsClient')
@@ -50,7 +50,7 @@ Feature: WebSocket — Message Filtering and Accumulation
     * def m1 = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
     * def m2 = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
     * def m3 = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
-    * def collected = [m1, m2, m3]
+    * def collected = karate.append(m1, m2, m3)
     * match collected contains 'msg-alpha'
     * match collected contains 'msg-beta'
     * match collected contains 'msg-gamma'
