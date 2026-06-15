@@ -6,15 +6,16 @@
 #  Tags available (sourced from project feature files):
 #    @SanityTest        → users/GetCall.feature, posts/PostCall.feature,
 #                         headers/HeadersTest.feature, datadriven/DataDrivenTest.feature,
-#                         validation/ResponseValidation.feature
+#                         validation/ResponseValidation.feature, grpc/GrpcBasic.feature
 #    @RegressionTest    → posts/PostCall.feature, headers/HeadersTest.feature,
 #                         datadriven/DataDrivenTest.feature, validation/ResponseValidation.feature,
-#                         retry/RetryUntil.feature, reusable/ReusableFeature.feature
+#                         retry/RetryUntil.feature, reusable/ReusableFeature.feature,
+#                         grpc/GrpcBasic.feature
 #    @TestCase1         → users/GetCall.feature (feature level)
 #    @TestCase2         → posts/PostCall.feature (scenario level)
 #    @TestCase3         → posts/PostCall.feature (scenario level)
 #    @Headers           → headers/HeadersTest.feature
-#    @DataDriven        → datadriven/DataDrivenTest.feature
+#    @DataDriven        → datadriven/DataDrivenTest.feature, grpc/GrpcBasic.feature
 #    @Validation        → validation/ResponseValidation.feature
 #    @Retry             → retry/RetryUntil.feature
 #    @Reusable          → reusable/ReusableFeature.feature, reusable/PostRequest.feature
@@ -23,6 +24,10 @@
 #    @Auth              → auth/Login.feature (helper), auth/AuthenticatedRequest.feature
 #    @GraphQL           → graphql/GraphQLBasicQuery.feature, graphql/GraphQLVariables.feature,
 #                         graphql/GraphQLDataDriven.feature, graphql/GraphQLFileQuery.feature
+#    @WebSocket         → websocket/WebSocketBasic.feature, websocket/WebSocketHandler.feature,
+#                         websocket/WebSocketAdvanced.feature
+#    @gRPC              → grpc/GrpcBasic.feature
+#                         (requires grpcbin service — started automatically in this workflow)
 # =============================================================================
 
 name: Tag-Based Tests
@@ -49,6 +54,8 @@ on:
           - "@IntentionalFailure"
           - "@Auth"
           - "@GraphQL"
+          - "@WebSocket"
+          - "@gRPC"
 
       environment:
         description: "Target environment to test against"
@@ -65,6 +72,14 @@ jobs:
     name: "Run ${{ inputs.tag }} scenarios"
     runs-on: ubuntu-latest
 
+    # grpcbin is used by @gRPC scenarios. It starts for every tag run (low overhead)
+    # and is simply unused when a non-gRPC tag is selected.
+    services:
+      grpcbin:
+        image: moul/grpcbin
+        ports:
+          - 9000:9000
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -75,12 +90,33 @@ jobs:
           java-version: "21"
           distribution: "temurin"
 
+      - name: Install grpcurl
+        run: |
+          GRPCURL_VERSION=1.9.1
+          curl -sSL \
+            "https://github.com/fullstorydev/grpcurl/releases/download/v${GRPCURL_VERSION}/grpcurl_${GRPCURL_VERSION}_linux_x86_64.tar.gz" \
+            | tar -xz -C /tmp grpcurl
+          sudo mv /tmp/grpcurl /usr/local/bin/grpcurl
+          grpcurl --version
+
+      - name: Wait for grpcbin (needed only for @gRPC tag)
+        if: inputs.tag == '@gRPC'
+        run: |
+          echo "Waiting for grpcbin on localhost:9000 ..."
+          for i in $(seq 1 15); do
+            grpcurl -plaintext localhost:9000 list && echo "grpcbin is up!" && break
+            echo "  attempt $i/15 — retrying in 2 s"
+            sleep 2
+          done
+
       - name: Run Tests for selected tag
         shell: pwsh
         env:
           SELECTED_TAG   : ${{ inputs.tag }}
           KARATE_ENV     : ${{ inputs.environment }}
           KARATE_LOGBACK : logback-ci.xml
+          GRPC_HOST            : localhost
+          GRPC_PORT            : "9000"
           AUTH_TOKEN           : ${{ secrets.AUTH_TOKEN }}
           API_KEY              : ${{ secrets.API_KEY }}
           CLIENT_ID            : ${{ secrets.CLIENT_ID }}
@@ -99,3 +135,17 @@ jobs:
           name: "tag-run-${{ inputs.tag }}-${{ github.run_number }}"
           path: target/karate-reports/
           retention-days: 7
+
+      - name: Teardown Summary
+        if: always()
+        shell: pwsh
+        run: |
+          Write-Host "=== Post-Test Cleanup Summary ==="
+          Write-Host "WebSocket connections closed by afterScenario hooks."
+          Write-Host "REST objects deleted by afterScenario hooks (PostCall, ReusableFeature)."
+          Write-Host "DummyJSON token expires automatically (no logout endpoint)."
+          $summaryFile = Get-ChildItem "target/karate-reports" -Filter "karate-summary.json" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($summaryFile) {
+            $s = Get-Content $summaryFile.FullName | ConvertFrom-Json
+            Write-Host "Passed: $($s.scenariosPassed) | Failed: $($s.scenariosFailed)"
+          }

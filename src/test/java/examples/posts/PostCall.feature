@@ -3,6 +3,7 @@ Feature: POST Method For Post Creation API With Incorrect Data
 
   Background:
     * url restfulApiUrl
+    * configure afterScenario = function() { var id = karate.get('createdId'); if (id != null) { karate.log('[TEARDOWN] Deleting object id: ' + id); karate.call('classpath:examples/posts/DeleteObject.feature', { objectId: id }); } }
 
   @TestCase2 @SanityTest
   Scenario: Create post with incorrect data
@@ -19,6 +20,7 @@ Feature: POST Method For Post Creation API With Incorrect Data
       """
     When method post
     Then status 200
+    * def createdId = response.id
     And match response.name == 'Karate Demo Post'
     And match response.id == '#string'
     And match response.data.type == 'blog-post'
@@ -40,6 +42,7 @@ Feature: POST Method For Post Creation API With Incorrect Data
       """
     When method post
     Then status 200
+    * def createdId = response.id
     And match response.name == 'Karate Demo Post'
     And match response.id == '#string'
     And match response.data.type == 'blog-post'

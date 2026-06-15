@@ -24,6 +24,14 @@ jobs:
     name: Run @SanityTest scenarios
     runs-on: ubuntu-latest
 
+    # grpcbin is required because GrpcBasic.feature has @SanityTest at feature level —
+    # all its scenarios inherit that tag and will run here.
+    services:
+      grpcbin:
+        image: moul/grpcbin
+        ports:
+          - 9000:9000
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -34,10 +42,30 @@ jobs:
           java-version: "21"
           distribution: "temurin"
 
+      - name: Install grpcurl
+        run: |
+          GRPCURL_VERSION=1.9.1
+          curl -sSL \
+            "https://github.com/fullstorydev/grpcurl/releases/download/v${GRPCURL_VERSION}/grpcurl_${GRPCURL_VERSION}_linux_x86_64.tar.gz" \
+            | tar -xz -C /tmp grpcurl
+          sudo mv /tmp/grpcurl /usr/local/bin/grpcurl
+          grpcurl --version
+
+      - name: Wait for grpcbin to be ready
+        run: |
+          echo "Waiting for grpcbin on localhost:9000 ..."
+          for i in $(seq 1 15); do
+            grpcurl -plaintext localhost:9000 list && echo "grpcbin is up!" && break
+            echo "  attempt $i/15 — retrying in 2 s"
+            sleep 2
+          done
+
       - name: Run Sanity Tests
         shell: pwsh
         env:
           KARATE_LOGBACK : logback-ci.xml
+          GRPC_HOST            : localhost
+          GRPC_PORT            : "9000"
           AUTH_TOKEN           : ${{ secrets.AUTH_TOKEN }}
           API_KEY              : ${{ secrets.API_KEY }}
           CLIENT_ID            : ${{ secrets.CLIENT_ID }}
@@ -56,3 +84,17 @@ jobs:
           name: sanity-report-${{ github.run_number }}
           path: target/karate-reports/
           retention-days: 7
+
+      - name: Teardown Summary
+        if: always()
+        shell: pwsh
+        run: |
+          Write-Host "=== Post-Test Cleanup Summary ==="
+          Write-Host "WebSocket connections closed by afterScenario hooks."
+          Write-Host "REST objects deleted by afterScenario hooks (PostCall, ReusableFeature)."
+          Write-Host "DummyJSON token expires automatically (no logout endpoint)."
+          $summaryFile = Get-ChildItem "target/karate-reports" -Filter "karate-summary.json" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($summaryFile) {
+            $s = Get-Content $summaryFile.FullName | ConvertFrom-Json
+            Write-Host "Passed: $($s.scenariosPassed) | Failed: $($s.scenariosFailed)"
+          }

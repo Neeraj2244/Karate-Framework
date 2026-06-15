@@ -54,3 +54,17 @@ jobs:
           name: smoke-report-${{ github.run_number }}
           path: target/karate-reports/
           retention-days: 7
+
+      - name: Teardown Summary
+        if: always()
+        shell: pwsh
+        run: |
+          Write-Host "=== Post-Test Cleanup Summary ==="
+          Write-Host "WebSocket connections closed by afterScenario hooks."
+          Write-Host "REST objects deleted by afterScenario hooks (PostCall, ReusableFeature)."
+          Write-Host "DummyJSON token expires automatically (no logout endpoint)."
+          $summaryFile = Get-ChildItem "target/karate-reports" -Filter "karate-summary.json" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($summaryFile) {
+            $s = Get-Content $summaryFile.FullName | ConvertFrom-Json
+            Write-Host "Passed: $($s.scenariosPassed) | Failed: $($s.scenariosFailed)"
+          }

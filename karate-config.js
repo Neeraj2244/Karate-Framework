@@ -23,6 +23,14 @@ function fn() {
     httpBingoUrl       : env('HTTP_BINGO_URL',       'https://httpbingo.org'),
     dummyJsonUrl       : env('DUMMY_JSON_URL',       'https://dummyjson.com'),
     graphqlUrl         : env('GRAPHQL_URL',          'https://graphqlzero.almansi.me/api'),
+    websocketUrl       : env('WEBSOCKET_URL',         'wss://ws.postman-echo.com/raw'),
+    // separate URL for binary WS tests — echo.websocket.in echoes binary frames back;
+    // ws.postman-echo.com/raw drops binary frames silently
+    binaryWebsocketUrl : env('WEBSOCKET_BINARY_URL',  'wss://echo.websocket.in'),
+
+    // gRPC test server — plain-text grpcbin (Docker service in CI, local Docker for dev)
+    grpcHost           : env('GRPC_HOST', 'localhost'),
+    grpcPort           : env('GRPC_PORT', '9000'),
 
     // Static credentials — values must come from environment variables only
     authToken    : env('AUTH_TOKEN'),        // e.g. Bearer token
@@ -42,6 +50,15 @@ function fn() {
       'X-API-Key'     : config.apiKey
     });
   }
+
+  // ── Suite-level teardown — runs ONCE after all scenarios complete ─────────────
+  karate.configure('afterAll', function() {
+    karate.log('[TEARDOWN] Suite finished. Performing suite-level cleanup.');
+    if (config.dummyJsonToken) {
+      karate.log('[TEARDOWN] DummyJSON token was used this run. Expires in 30 minutes automatically (no logout endpoint).');
+    }
+    karate.log('[TEARDOWN] Suite-level cleanup complete.');
+  });
 
   return config;
 }
