@@ -27,6 +27,8 @@ function fn() {
     // separate URL for binary WS tests — echo.websocket.in echoes binary frames back;
     // ws.postman-echo.com/raw drops binary frames silently
     binaryWebsocketUrl : env('WEBSOCKET_BINARY_URL',  'wss://echo.websocket.in'),
+    // seconds to wait for a WebSocket message before poll() returns null — tune via WS_TIMEOUT_SECONDS in CI
+    wsTimeoutSeconds   : parseInt(env('WS_TIMEOUT_SECONDS', '8')),
 
     // gRPC test server — plain-text grpcbin (Docker service in CI, local Docker for dev)
     grpcHost           : env('GRPC_HOST', 'localhost'),

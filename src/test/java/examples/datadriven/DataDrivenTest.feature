@@ -11,7 +11,4 @@ Feature: Verify user emails from JSONPlaceholder
     And match response.email == '<email>'
 
     Examples:
-      | id | email              |
-      | 1  | Sincere@april.biz  |
-      | 2  | Shanna@melissa.tv  |
-      | 3  | Nathan@yesenia.net |
+      | read('users-data.csv') |

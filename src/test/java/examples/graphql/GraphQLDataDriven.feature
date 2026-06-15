@@ -26,10 +26,7 @@ Feature: GraphQL — Data-Driven Testing
     And match response.data.user.email == '<email>'
 
     Examples:
-      | userId | email              |
-      | 1      | Sincere@april.biz  |
-      | 2      | Shanna@melissa.tv  |
-      | 3      | Nathan@yesenia.net |
+      | read('../datadriven/graphql-users-data.csv') |
 
   Scenario Outline: Fetch post by ID and verify title
     Given text query =
@@ -49,7 +46,4 @@ Feature: GraphQL — Data-Driven Testing
     And match response.data.post.title contains '<titleContains>'
 
     Examples:
-      | postId | titleContains |
-      | 1      | sunt          |
-      | 2      | qui           |
-      | 3      | ea            |
+      | read('../datadriven/graphql-posts-data.csv') |

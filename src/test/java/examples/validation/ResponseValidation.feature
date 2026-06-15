@@ -3,9 +3,11 @@ Feature: Get User by ID with complex validation
 
   Background:
     * url jsonPlaceholderUrl
+    * configure retry = { count: 3, interval: 2000 }
 
   Scenario: Get User by ID
     Given path 'users', 1
+    And retry until responseStatus == 200
     When method get
     Then status 200
     And match response ==

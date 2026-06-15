@@ -18,7 +18,7 @@ Feature: WebSocket — Basic Connection and Echo
     * def socket = WsClient.connect(websocketUrl)
     * socket.onMessage(function(frame) { queue.put(frame.getText()) })
     * socket.send('hello karate')
-    * def result = queue.poll(8, TimeUnit.SECONDS)
+    * def result = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
     * match result == 'hello karate'
 
   Scenario: Send JSON string and receive echo back as parsed object
@@ -27,7 +27,7 @@ Feature: WebSocket — Basic Connection and Echo
     * socket.onMessage(function(frame) { queue.put(frame.getText()) })
     * def jsonStr = '{"action":"ping","id":1,"source":"karate-test"}'
     * socket.send(jsonStr)
-    * def raw    = queue.poll(8, TimeUnit.SECONDS)
+    * def raw    = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
     * def result = karate.fromJson(raw)
     * match result.action == 'ping'
     * match result.id     == 1

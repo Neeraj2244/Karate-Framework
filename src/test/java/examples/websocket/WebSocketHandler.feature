@@ -23,7 +23,7 @@ Feature: WebSocket — Message Filtering and Accumulation
     * socket.send('NOISE_1')
     * socket.send('NOISE_2')
     * socket.send('TARGET_MESSAGE')
-    * def result = queue.poll(8, TimeUnit.SECONDS)
+    * def result = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
     * match result == 'TARGET_MESSAGE'
 
   Scenario: Parse JSON frame and filter by type field
@@ -34,7 +34,7 @@ Feature: WebSocket — Message Filtering and Accumulation
     * socket.send('{"type":"status","value":"processing"}')
     * socket.send('{"type":"heartbeat","ts":1000}')
     * socket.send('{"type":"result","value":42}')
-    * def raw    = queue.poll(8, TimeUnit.SECONDS)
+    * def raw    = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
     * def result = karate.fromJson(raw)
     * match result.type  == 'result'
     * match result.value == 42
@@ -47,9 +47,9 @@ Feature: WebSocket — Message Filtering and Accumulation
     * socket.send('msg-alpha')
     * socket.send('msg-beta')
     * socket.send('msg-gamma')
-    * def m1 = queue.poll(8, TimeUnit.SECONDS)
-    * def m2 = queue.poll(8, TimeUnit.SECONDS)
-    * def m3 = queue.poll(8, TimeUnit.SECONDS)
+    * def m1 = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
+    * def m2 = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
+    * def m3 = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
     * match m1 == 'msg-alpha'
     * match m2 == 'msg-beta'
     * match m3 == 'msg-gamma'

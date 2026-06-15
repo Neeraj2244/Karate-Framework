@@ -25,18 +25,18 @@ Feature: WebSocket — Multi-Step Interaction and Options
 
     # Step 1
     * socket.send('step-1')
-    * def r1 = queue.poll(8, TimeUnit.SECONDS)
+    * def r1 = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
     * match r1 == 'step-1'
 
     # Step 2 — message is derived from step 1 result
     * def msg2 = r1 + '-done'
     * socket.send(msg2)
-    * def r2 = queue.poll(8, TimeUnit.SECONDS)
+    * def r2 = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
     * match r2 == 'step-1-done'
 
     # Step 3 — JSON payload referencing step 2 result
     * socket.send('{"stage":"final","prev":"' + r2 + '"}')
-    * def raw3  = queue.poll(8, TimeUnit.SECONDS)
+    * def raw3  = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
     * def r3    = karate.fromJson(raw3)
     * match r3.stage == 'final'
     * match r3.prev  == 'step-1-done'
@@ -49,7 +49,7 @@ Feature: WebSocket — Multi-Step Interaction and Options
     * def socket  = WsClient.connect(options)
     * socket.onMessage(function(frame) { queue.put(frame.getText()) })
     * socket.send('ping-with-headers')
-    * def result  = queue.poll(8, TimeUnit.SECONDS)
+    * def result  = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
     * match result == 'ping-with-headers'
 
   Scenario: Binary WebSocket — send binary frame and receive binary echo
@@ -70,5 +70,5 @@ Feature: WebSocket — Multi-Step Interaction and Options
     * def payload = 'binary-payload'
     * def bytes   = Java.type('java.lang.String').valueOf(payload).getBytes('UTF-8')
     * socket.send(WsFrame.binary(bytes))
-    * def received = queue.poll(8, TimeUnit.SECONDS)
+    * def received = queue.poll(wsTimeoutSeconds, TimeUnit.SECONDS)
     * match received == 'binary-payload'

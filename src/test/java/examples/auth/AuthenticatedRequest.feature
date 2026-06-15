@@ -7,9 +7,11 @@ Feature: DummyJSON — Authenticated API Requests
   Background:
     * url dummyJsonUrl
     * header Authorization = 'Bearer ' + dummyJsonToken
+    * configure retry = { count: 3, interval: 2000 }
 
   Scenario: GET /auth/me — verify access token is valid
     Given path 'auth', 'me'
+    And retry until responseStatus == 200
     When method GET
     Then status 200
     And match response.username   == 'emilys'
@@ -20,6 +22,7 @@ Feature: DummyJSON — Authenticated API Requests
 
   Scenario: GET /auth/me — validate full profile shape including nested objects
     Given path 'auth', 'me'
+    And retry until responseStatus == 200
     When method GET
     Then status 200
     # match contains — partial match at top level, ignores extra fields
