@@ -73,6 +73,8 @@ jobs:
   tag-run:
     name: "Run ${{ inputs.tag }} scenarios"
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     # grpcbin is used by @gRPC scenarios. It starts for every tag run (low overhead)
     # and is simply unused when a non-gRPC tag is selected.
@@ -84,16 +86,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Cache Karate JAR
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: karate-2.0.10.jar
           key: karate-jar-${{ hashFiles('karate-2.0.10.jar') }}
 
       - name: Set up Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: "21"
           distribution: "temurin"
@@ -138,7 +140,7 @@ jobs:
 
       - name: Upload Tag-Run Report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: "tag-run-${{ inputs.tag }}-${{ github.run_number }}"
           path: target/karate-reports/
@@ -197,7 +199,7 @@ jobs:
 
       - name: Upload quality metrics and reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: quality-metrics-${{ github.run_number }}
           path: |
