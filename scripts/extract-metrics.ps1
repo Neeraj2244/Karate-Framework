@@ -9,8 +9,74 @@ param(
 # Strip leading @ and normalise to lower-case (e.g. @SanityTest -> sanitest)
 $Phase = $Phase.TrimStart('@').ToLower()
 
-# Total scenarios defined across the full project suite (all phases combined)
-$TOTAL_DEFINED = 66
+# ---------------------------------------------------------------------------
+# Auto-count total scenarios defined across the full project suite.
+# Handles: plain Scenario:, Scenario Outline: with inline Examples tables,
+# and Scenario Outline: driven by an external CSV (read('file.csv')).
+# Features tagged @ignore (Login, DeleteObject helpers) are excluded.
+# ---------------------------------------------------------------------------
+function Get-TotalDefinedScenarios {
+    param([string]$FeaturesRoot)
+
+    $total = 0
+
+    Get-ChildItem $FeaturesRoot -Filter "*.feature" -Recurse -ErrorAction SilentlyContinue |
+    ForEach-Object {
+        $featureFile = $_
+        $lines       = Get-Content $featureFile.FullName -ErrorAction SilentlyContinue
+        if (-not $lines) { return }
+
+        # Skip helper features marked @ignore
+        if ($lines[0].Trim() -match '^@ignore') { return }
+
+        $inOutline   = $false
+        $inExamples  = $false
+        $headerSeen  = $false
+
+        foreach ($line in $lines) {
+            $t = $line.Trim()
+
+            if ($t -match '^Scenario\s*:') {
+                $total++
+                $inOutline  = $false
+                $inExamples = $false
+
+            } elseif ($t -match '^Scenario Outline\s*:') {
+                $inOutline   = $true
+                $inExamples  = $false
+                $headerSeen  = $false
+
+            } elseif ($inOutline -and $t -match '^Examples\s*:') {
+                $inExamples = $true
+                $headerSeen = $false
+
+            } elseif ($inExamples -and $t -match '^\|') {
+                if ($t -match "read\('([^']+\.csv)'\)") {
+                    # CSV-driven outline — count data rows in the CSV (minus header)
+                    $csvPath = Join-Path (Split-Path $featureFile.FullName) $Matches[1]
+                    if (Test-Path $csvPath) {
+                        $csvLines = Get-Content $csvPath -ErrorAction SilentlyContinue
+                        $total   += [math]::Max(0, $csvLines.Count - 1)
+                    }
+                    $inExamples = $false
+                } elseif (-not $headerSeen) {
+                    $headerSeen = $true   # first pipe row is the column header
+                } else {
+                    $total++              # every subsequent pipe row is one scenario run
+                }
+
+            } elseif ($inExamples -and $t -ne '' -and $t -notmatch '^\|') {
+                $inExamples = $false     # left the Examples block
+            }
+        }
+    }
+
+    return $total
+}
+
+$featuresRoot  = Join-Path $PSScriptRoot ".." "src" "test" "java" "examples"
+$TOTAL_DEFINED = Get-TotalDefinedScenarios -FeaturesRoot $featuresRoot
+Write-Host "  Scenario count (auto): $TOTAL_DEFINED"
 
 # ---------------------------------------------------------------------------
 # Parse JSON data block embedded in karate-summary.html
