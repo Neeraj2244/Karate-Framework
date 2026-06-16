@@ -1,0 +1,4 @@
+date,runId,phase,environment,totalDefined,totalExecuted,passed,failed,passRate,executionTimeSec
+2026-06-16,1,sanity,dev,66,1,1,0,100,1.7
+2026-06-16,2,sanity,dev,66,16,16,0,100,34.8
+2026-06-16,3,regression,dev,66,30,29,1,96.67,87.7

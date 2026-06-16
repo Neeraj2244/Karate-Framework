@@ -1,0 +1,71 @@
+﻿{
+    "date":  "2026-06-16",
+    "runId":  "3",
+    "phase":  "regression",
+    "environment":  "dev",
+    "totalDefined":  66,
+    "totalExecuted":  30,
+    "passed":  29,
+    "failed":  1,
+    "passRate":  96.67,
+    "executionSec":  87.7,
+    "modules":  {
+                    "auth":  {
+                                 "passed":  2,
+                                 "failed":  0,
+                                 "total":  2,
+                                 "defectDensity":  0
+                             },
+                    "retry":  {
+                                  "passed":  3,
+                                  "failed":  0,
+                                  "total":  3,
+                                  "defectDensity":  0
+                              },
+                    "posts":  {
+                                  "passed":  0,
+                                  "failed":  0,
+                                  "total":  0,
+                                  "defectDensity":  0
+                              },
+                    "validation":  {
+                                       "passed":  1,
+                                       "failed":  0,
+                                       "total":  1,
+                                       "defectDensity":  0
+                                   },
+                    "headers":  {
+                                    "passed":  1,
+                                    "failed":  0,
+                                    "total":  1,
+                                    "defectDensity":  0
+                                },
+                    "graphql":  {
+                                    "passed":  12,
+                                    "failed":  0,
+                                    "total":  12,
+                                    "defectDensity":  0
+                                },
+                    "datadriven":  {
+                                       "passed":  3,
+                                       "failed":  0,
+                                       "total":  3,
+                                       "defectDensity":  0
+                                   },
+                    "websocket":  {
+                                      "passed":  5,
+                                      "failed":  1,
+                                      "total":  6,
+                                      "defectDensity":  16.67
+                                  },
+                    "reusable":  {
+                                     "passed":  1,
+                                     "failed":  0,
+                                     "total":  1,
+                                     "defectDensity":  0
+                                 }
+                },
+    "failingModules":  [
+                           "websocket"
+                       ]
+}

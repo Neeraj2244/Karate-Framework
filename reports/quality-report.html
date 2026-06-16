@@ -1,0 +1,218 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quality Report &mdash; REGRESSION &mdash; 2026-06-16</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+         font-size: 14px; background: #f8fafc; color: #1e293b; }
+
+  /* Header */
+  .page-header { background: #1e293b; color: #f1f5f9; padding: 16px 24px;
+                 display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .page-header h1 { font-size: 18px; font-weight: 700; }
+  .page-meta { font-size: 12px; color: #94a3b8; display: flex; gap: 12px; flex-wrap: wrap; }
+  .page-meta span::before { content: '|'; margin-right: 12px; }
+  .page-meta span:first-child::before { content: ''; margin: 0; }
+
+  /* Tabs */
+  .tab-bar { background: #fff; border-bottom: 2px solid #e2e8f0;
+             padding: 0 24px; display: flex; gap: 4px; }
+  .tab-btn { padding: 12px 20px; border: none; background: none; cursor: pointer;
+             font-size: 14px; font-weight: 500; color: #64748b;
+             border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+  .tab-btn:hover { color: #1e293b; }
+  .tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
+
+  /* Content area */
+  .tab-panel { display: none; padding: 24px; max-width: 1000px; margin: 0 auto; }
+  .tab-panel.active { display: block; }
+
+  /* Sections */
+  .section { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
+             padding: 20px; margin-bottom: 20px; }
+  .section h2 { font-size: 15px; font-weight: 600; margin-bottom: 14px;
+                color: #0f172a; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9; }
+
+  /* Health badge */
+  .health-badge { display: inline-block; padding: 8px 16px; border-radius: 6px;
+                  font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 12px; }
+  .health-note { padding: 12px 16px; border-radius: 6px; font-size: 13px;
+                 line-height: 1.5; margin-top: 8px; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: #f8fafc; }
+  th { text-align: left; padding: 8px 12px; font-weight: 600; font-size: 12px;
+       text-transform: uppercase; letter-spacing: 0.05em; color: #64748b;
+       border-bottom: 2px solid #e2e8f0; }
+  td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8fafc; }
+
+  /* Status badges */
+  .pass { color: #16a34a; font-weight: 600; }
+  .warn { color: #d97706; font-weight: 600; }
+  .fail { color: #dc2626; font-weight: 600; }
+  .warn-badge { background: #fef9c3; color: #a16207; font-size: 11px; font-weight: 600;
+                padding: 1px 6px; border-radius: 10px; vertical-align: middle; }
+
+  /* Failed scenarios */
+  .failed-scenario { background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px;
+                     padding: 12px 14px; margin-bottom: 10px; }
+  .scenario-name { font-weight: 600; color: #991b1b; margin-bottom: 4px; }
+  .scenario-path code { font-size: 12px; color: #64748b; }
+  .scenario-tags { margin-top: 6px; }
+  .tag { display: inline-block; background: #dbeafe; color: #1d4ed8; font-size: 11px;
+         padding: 1px 7px; border-radius: 10px; margin-right: 4px; }
+
+  /* Misc */
+  .ok { color: #16a34a; }
+  .action { color: #92400e; background: #fffbeb; border-left: 3px solid #d97706;
+            padding: 8px 12px; border-radius: 4px; margin-top: 8px; font-size: 13px; }
+  .note { font-size: 12px; color: #64748b; margin-top: 10px; line-height: 1.5; }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 6px; line-height: 1.5; }
+  code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  .footer { font-size: 11px; color: #94a3b8; text-align: center; margin-top: 24px;
+            padding-bottom: 24px; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Quality Report</h1>
+  <div class="page-meta">
+    <span>REGRESSION</span>
+    <span>2026-06-16</span>
+    <span>dev</span>
+    <span>Run #3</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" id="btn-executive" onclick="showTab('executive')">Executive Summary</button>
+  <button class="tab-btn" id="btn-it" onclick="showTab('it')">IT Technical Report</button>
+</div>
+
+<div id="executive" class="tab-panel active">
+<div class="section">
+  <div class="health-badge" style="background:#16a34a">GREEN - HEALTHY</div>
+  <p class="health-note" style="background:#f0fdf4;border-left:4px solid #16a34a">Quality gate <strong>PASSED</strong>. Pass rate meets the &ge; 95% threshold for deployment approval.</p>
+</div>
+
+<div class="section">
+  <h2>Key Indicators</h2>
+  <table><thead><tr><th>Indicator</th><th>Value</th></tr></thead><tbody>
+<tr><td>Automation Pass Rate <strong>96.67%</strong></td></tr>
+<tr><td>Test Execution Coverage 45.5% of full suite</td></tr>
+<tr><td>Defect Leakage Events 1</td></tr>
+<tr><td>Risk Areas 1 area(s) with failures</td></tr>
+</tbody></table>
+
+</div>
+
+<div class="section">
+  <h2>Phase Coverage</h2>
+  <table><thead><tr><th>Phase</th><th>Scenarios Run</th><th>Pass Rate</th><th>Gate Status</th></tr></thead><tbody>
+<tr><td>SANITY</td><td>16</td><td>100%</td><td><span class='pass'>PASS</span></td></tr>
+<tr><td>REGRESSION</td><td>30</td><td>96.67%</td><td><span class='pass'>PASS</span></td></tr>
+</tbody></table>
+
+</div>
+
+<div class="section">
+  <h2>Risk Areas</h2>
+  <ul><li><strong>websocket</strong> area: 1 failure(s) &mdash; <span style='color:#2563eb;font-weight:bold'>LOW risk</span></li></ul><p class='note'>One known expected failure in the posts area is excluded from risk scoring.</p>
+</div>
+
+<div class="section">
+  <h2>Defect Leakage</h2>
+  <p><strong>1 issue(s) were not caught in the previous testing phase</strong> and only surfaced at the REGRESSION stage.</p><p class='action'>Action Required: Review upstream test coverage to close the detection gap before the next release cycle.</p>
+</div>
+
+<div class="section">
+  <h2>7-Day Pass Rate Trend (REGRESSION phase)</h2>
+  <table><thead><tr><th>Date</th><th>Pass Rate</th></tr></thead><tbody>
+<tr><td>2026-06-16</td><td>96.67%</td></tr>
+</tbody></table>
+
+</div>
+
+<div class="section">
+  <h2>Milestone Gates</h2>
+  <table><thead><tr><th>Gate</th><th>Threshold</th><th>Current</th><th>Status</th></tr></thead><tbody>
+<tr><td>Deploy to Staging &ge; 80% 96.67% <span class='pass'>PASS</span></td></tr>
+<tr><td>Deploy to Production &ge; 95% 96.67% <span class='pass'>PASS</span></td></tr>
+</tbody></table>
+
+</div>
+
+<p class="footer">This report is auto-generated from CI test execution data. For technical detail see the IT Technical Report tab.</p>
+</div>
+
+<div id="it" class="tab-panel">
+<div class="section">
+  <h2>Summary</h2>
+  <table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>
+<tr><td>Total Scenarios Executed 30</td></tr>
+<tr><td>Passed 29</td></tr>
+<tr><td>Failed 1</td></tr>
+<tr><td>Automation Pass Rate <strong>96.67%</strong></td></tr>
+<tr><td>Test Execution Coverage 45.5% of 66 defined scenarios</td></tr>
+<tr><td>Execution Time 87.7s</td></tr>
+<tr><td>Defect Leakage Events 1</td></tr>
+</tbody></table>
+
+</div>
+
+<div class="section">
+  <h2>Module Breakdown &mdash; Defect Density</h2>
+  <table><thead><tr><th>Module</th><th>Executed</th><th>Passed</th><th>Failed</th><th>Defect Density</th></tr></thead><tbody>
+<tr><td>websocket <span class='warn-badge'>WARN</span></td><td>6</td><td>5</td><td>1</td><td>16.67%</td></tr>
+<tr><td>reusable</td><td>1</td><td>1</td><td>0</td><td>0%</td></tr>
+<tr><td>validation</td><td>1</td><td>1</td><td>0</td><td>0%</td></tr>
+<tr><td>auth</td><td>2</td><td>2</td><td>0</td><td>0%</td></tr>
+<tr><td>retry</td><td>3</td><td>3</td><td>0</td><td>0%</td></tr>
+<tr><td>datadriven</td><td>3</td><td>3</td><td>0</td><td>0%</td></tr>
+<tr><td>graphql</td><td>12</td><td>12</td><td>0</td><td>0%</td></tr>
+<tr><td>headers</td><td>1</td><td>1</td><td>0</td><td>0%</td></tr>
+</tbody></table>
+
+  <p class="note"><strong>Note:</strong> <code>posts</code> module excludes <code>@IntentionalFailure</code> scenarios (PostCall TestCase2) from defect density.</p>
+</div>
+
+<div class="section">
+  <h2>Defect Leakage</h2>
+  <p><strong>1 module(s) passed upstream but failed in REGRESSION:</strong></p><ul><li>Module <code>websocket</code> &mdash; passed in <strong>SANITY</strong>, failed in <strong>REGRESSION</strong></li></ul><p class='action'>Action: Add or strengthen regression test coverage for the modules listed above.</p>
+</div>
+
+<div class="section">
+  <h2>Failed Scenarios</h2>
+  <div class='failed-scenario'><div class='scenario-name'>Collect multiple messages — poll three times for three echoes</div><div class='scenario-path'><code>src/test/java/examples/websocket/WebSocketHandler.feature</code></div><div class='scenario-tags'><span class='tag'>@WebSocket</span> <span class='tag'>@RegressionTest</span></div></div>
+</div>
+
+<div class="section">
+  <h2>Artifacts</h2>
+  <ul>
+    <li>HTML Summary: <code>target/karate-reports/karate-summary.html</code></li>
+    <li>Execution Timeline: <code>target/karate-reports/karate-timeline.html</code></li>
+    <li>Per-feature Reports: <code>target/karate-reports/feature-html/</code></li>
+  </ul>
+</div>
+
+<p class="footer">Generated by scripts/generate-combined-report.ps1</p>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  document.getElementById('btn-' + id).classList.add('active');
+}
+</script>
+</body>
+</html>

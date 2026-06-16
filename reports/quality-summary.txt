@@ -1,0 +1,12 @@
+﻿## Quality Report - REGRESSION | 2026-06-16
+
+| | |
+|---|---|
+| **Health** | GREEN - HEALTHY |
+| **Pass Rate** | 96.67% (29 passed, 1 failed of 30) |
+| **Coverage** | 45.5% of 66 defined scenarios |
+| **Leakage: 1 event(s)** | websocket (sanity -> regression) |
+| **Deploy to Staging** | PASS (>= 80%) |
+| **Deploy to Production** | PASS (>= 95%) |
+
+Full interactive report: download the **quality-metrics-3** artifact and open **quality-report.html**.

@@ -74,3 +74,47 @@ jobs:
             $s = Get-Content $summaryFile.FullName | ConvertFrom-Json
             Write-Host "Passed: $($s.scenariosPassed) | Failed: $($s.scenariosFailed)"
           }
+
+      # ── Quality Metrics & Reporting ──────────────────────────────────────────
+      - name: Download previous metrics log
+        if: always()
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          name_is_regexp: true
+          name: quality-metrics-.*
+          path: metrics/
+          if_no_artifact_found: warn
+        continue-on-error: true
+
+      - name: Extract quality metrics
+        if: always()
+        shell: pwsh
+        run: |
+          .\scripts\extract-metrics.ps1 `
+            -Phase "smoke" `
+            -RunId "${{ github.run_number }}" `
+            -Environment "${{ inputs.environment }}"
+
+      - name: Generate combined quality report
+        if: always()
+        shell: pwsh
+        run: .\scripts\generate-combined-report.ps1
+
+      - name: Post summary to Step Summary
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path "reports/quality-summary.txt") {
+            Get-Content "reports/quality-summary.txt" |
+              Out-File -Append -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8
+          }
+
+      - name: Upload quality metrics and reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: quality-metrics-${{ github.run_number }}
+          path: |
+            metrics/
+            reports/
+          retention-days: 30
