@@ -1,9 +1,10 @@
-
+@ignore
 Feature: DummyJSON Login — token generation helper
 
   # Called exclusively via karate.callSingle() in karate-config.js.
   # Accepts: loginUrl, username, password as arguments.
   # Returns: accessToken, refreshToken (available to every feature via config).
+  # @ignore prevents the parallel/all runner from picking this up as a standalone test.
 
   Scenario: POST /auth/login and capture tokens
     Given url loginUrl
